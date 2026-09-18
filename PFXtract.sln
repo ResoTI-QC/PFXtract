@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PFXtract.Core", "src\PFXtract.Core\PFXtract.Core.csproj", "{51CF8B27-8E57-4A65-939E-D2E4F67536FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PFXtract", "src\PFXtract\PFXtract.csproj", "{0E4D7E47-B230-4ECA-A5C8-A65949479F83}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PFXtract.Tests", "tests\PFXtract.Tests\PFXtract.Tests.csproj", "{7B26B0F4-8652-491E-8584-5AF7EBCF568A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{51CF8B27-8E57-4A65-939E-D2E4F67536FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51CF8B27-8E57-4A65-939E-D2E4F67536FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51CF8B27-8E57-4A65-939E-D2E4F67536FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51CF8B27-8E57-4A65-939E-D2E4F67536FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E4D7E47-B230-4ECA-A5C8-A65949479F83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E4D7E47-B230-4ECA-A5C8-A65949479F83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E4D7E47-B230-4ECA-A5C8-A65949479F83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E4D7E47-B230-4ECA-A5C8-A65949479F83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B26B0F4-8652-491E-8584-5AF7EBCF568A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B26B0F4-8652-491E-8584-5AF7EBCF568A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B26B0F4-8652-491E-8584-5AF7EBCF568A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B26B0F4-8652-491E-8584-5AF7EBCF568A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

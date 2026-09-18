@@ -1,0 +1,30 @@
+# Visual Studio / .NET build outputs
+**/bin/
+**/obj/
+.vs/
+TestResults/
+*.user
+*.suo
+*.pdb
+
+# Published application and local validation artifacts
+dist/
+artifacts/
+/PFXtract-*.zip
+
+# Certificate and private-key files
+*.pfx
+*.p12
+*.pem
+*.key
+*.cer
+*.crt
+*.p7b
+*.p7c
+
+# Operating-system and editor files
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/

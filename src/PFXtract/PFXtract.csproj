@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\certificate-download-icon.ico</ApplicationIcon>
+    <AssemblyName>PFXtract</AssemblyName>
+    <Product>PFXtract</Product>
+    <Version>1.2.0</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PFXtract.Core\PFXtract.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\reso-ti-logo.png" LogicalName="PFXtract.Assets.reso-ti-logo.png" />
+    <EmbeddedResource Include="Assets\certificate-download-icon.png" LogicalName="PFXtract.Assets.certificate-download-icon.png" />
+    <EmbeddedResource Include="Assets\certificate-download-icon.ico" LogicalName="PFXtract.Assets.certificate-download-icon.ico" />
+  </ItemGroup>
+</Project>

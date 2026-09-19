@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - "*.*.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Étiquette à publier (ex. 1.2.1)"
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -12,10 +18,14 @@ jobs:
   publish:
     name: Compiler et publier PFXtract
     runs-on: windows-latest
+    env:
+      RELEASE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
 
     steps:
       - name: Récupérer le code source
         uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_VERSION }}
 
       - name: Installer .NET 8
         uses: actions/setup-dotnet@v4
@@ -47,7 +57,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $version = $env:GITHUB_REF_NAME
+          $version = $env:RELEASE_VERSION
           $notes = ".\docs\release-notes\$version.md"
           if (-not (Test-Path $notes)) {
             throw "Les notes de version sont absentes : $notes"

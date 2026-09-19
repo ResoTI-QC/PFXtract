@@ -6,6 +6,12 @@
 
 PFXtract is a Windows desktop application for extracting and converting certificates contained in `.pfx` and `.p12` files.
 
+### Download
+
+Download the latest standalone Windows 64-bit executable from the [GitHub releases page](https://github.com/ResoTI-QC/PFXtract/releases/latest), or use the [direct EXE download](https://github.com/ResoTI-QC/PFXtract/releases/latest/download/PFXtract-win-x64.exe). No separate .NET installation is required.
+
+The matching SHA-256 checksum is provided with every release so you can verify the downloaded file.
+
 ### Features
 
 - Select files through a dialog or by dragging and dropping them.
@@ -49,6 +55,12 @@ The **Copy CRT / KEY / CA** mode temporarily displays an unencrypted private key
 ## Français
 
 PFXtract est une application Windows permettant d’extraire et de convertir les certificats contenus dans des fichiers `.pfx` et `.p12`.
+
+### Télécharger
+
+Téléchargez le dernier exécutable autonome pour Windows 64 bits depuis la [page des versions GitHub](https://github.com/ResoTI-QC/PFXtract/releases/latest), ou utilisez le [téléchargement direct de l’EXE](https://github.com/ResoTI-QC/PFXtract/releases/latest/download/PFXtract-win-x64.exe). Aucune installation séparée de .NET n’est requise.
+
+L’empreinte SHA-256 correspondante accompagne chaque version afin de vérifier le fichier téléchargé.
 
 ### Fonctionnalités
 

@@ -8,6 +8,10 @@ namespace PFXtract;
 
 public sealed class MainForm : Form
 {
+    // Page officielle ouverte lorsque l’utilisateur clique sur le numéro de version.
+    private const string ProductUrl = "https://resoti.app/logiciels/pfxtract/";
+
+    // Palette et ressources graphiques communes à toute l’application.
     private static readonly Color Navy = Color.FromArgb(24, 37, 59);
     private static readonly Color Blue = Color.FromArgb(37, 99, 235);
     private static readonly Color PaleBlue = Color.FromArgb(239, 246, 255);
@@ -18,6 +22,8 @@ public sealed class MainForm : Form
     private static readonly Icon WindowIcon = LoadEmbeddedIcon("PFXtract.Assets.certificate-download-icon.ico");
     private static readonly string AppVersion = GetAppVersion();
 
+    // Contrôles principaux conservés comme champs afin de pouvoir les actualiser
+    // lorsque l’utilisateur change de langue sans redémarrer l’application.
     private readonly TextBox _filePath = new();
     private readonly TextBox _password = new();
     private readonly Button _browseButton = new();
@@ -34,6 +40,7 @@ public sealed class MainForm : Form
     private readonly Button _extractButton = new();
     private readonly Button _hostingButton = new();
     private readonly Button _helpButton = new();
+    private readonly LinkLabel _versionLink = new();
     private readonly ComboBox _languageSelector = new();
     private readonly Label _status = new();
     private Label _subtitle = null!;
@@ -45,6 +52,7 @@ public sealed class MainForm : Form
     private Label _languageLabel = null!;
     private CertificateBundle? _bundle;
 
+    // Le français est la valeur par défaut (index 0); l’anglais utilise l’index 1.
     private bool IsEnglish => _languageSelector.SelectedIndex == 1;
 
     private string T(string french, string english) => IsEnglish ? english : french;
@@ -71,6 +79,8 @@ public sealed class MainForm : Form
 
     private void BuildInterface()
     {
+        // La fenêtre est divisée en quatre zones fixes : en-tête, import,
+        // contenu des certificats et barre d’actions inférieure.
         var root = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
@@ -138,7 +148,7 @@ public sealed class MainForm : Form
             MaximizeBox = false,
             MinimizeBox = false,
             ShowInTaskbar = false,
-            ClientSize = new Size(590, 430),
+            ClientSize = new Size(590, 520),
             BackColor = Color.White,
             Font = new Font("Segoe UI", 9.5f)
         };
@@ -190,15 +200,34 @@ public sealed class MainForm : Form
             Size = new Size(532, 64),
             Padding = new Padding(12, 9, 12, 8)
         };
+        var moreInfoPrefix = T("Pour plus d’informations : ", "For more information: ");
+        var moreInfo = new LinkLabel
+        {
+            Text = moreInfoPrefix + ProductUrl,
+            AutoSize = true,
+            Location = new Point(31, 380),
+            LinkColor = Blue,
+            ActiveLinkColor = Navy,
+            VisitedLinkColor = Blue,
+            LinkBehavior = LinkBehavior.HoverUnderline,
+            Cursor = Cursors.Hand,
+            AccessibleDescription = T(
+                "Ouvrir la page officielle de PFXtract",
+                "Open the official PFXtract product page")
+        };
+        // Seule l’adresse est soulignée et ouvre la page officielle.
+        moreInfo.Links.Clear();
+        moreInfo.Links.Add(moreInfoPrefix.Length, ProductUrl.Length, ProductUrl);
+        moreInfo.LinkClicked += (_, _) => OpenProductPage();
         var close = new Button
         {
             Text = T("Fermer", "Close"),
             DialogResult = DialogResult.OK,
-            Location = new Point(450, 382),
+            Location = new Point(450, 422),
             Size = new Size(110, 34)
         };
         StylePrimaryButton(close);
-        help.Controls.AddRange([title, version, instructions, warning, close]);
+        help.Controls.AddRange([title, version, instructions, warning, moreInfo, close]);
         help.AcceptButton = close;
         help.CancelButton = close;
         help.ShowDialog(this);
@@ -492,17 +521,19 @@ public sealed class MainForm : Form
         bottomLeft.Controls.Add(_languageLabel, 1, 0);
         bottomLeft.Controls.Add(_languageSelector, 2, 0);
 
-        var version = new Label
-        {
-            Text = $"Version {AppVersion}",
-            Dock = DockStyle.Right,
-            Width = 120,
-            TextAlign = ContentAlignment.MiddleRight,
-            ForeColor = Slate,
-            Font = new Font("Segoe UI", 8.5f)
-        };
+        _versionLink.Text = $"Version {AppVersion}";
+        _versionLink.Dock = DockStyle.Right;
+        _versionLink.Width = 120;
+        _versionLink.TextAlign = ContentAlignment.MiddleRight;
+        _versionLink.LinkColor = Blue;
+        _versionLink.ActiveLinkColor = Navy;
+        _versionLink.VisitedLinkColor = Blue;
+        _versionLink.LinkBehavior = LinkBehavior.HoverUnderline;
+        _versionLink.Font = new Font("Segoe UI Semibold", 8.5f);
+        _versionLink.Cursor = Cursors.Hand;
+        _versionLink.LinkClicked += (_, _) => OpenProductPage();
         bottomBar.Controls.Add(bottomLeft);
-        bottomBar.Controls.Add(version);
+        bottomBar.Controls.Add(_versionLink);
 
         footer.Controls.Add(panel, 0, 0);
         footer.Controls.Add(bottomBar, 0, 1);
@@ -511,6 +542,8 @@ public sealed class MainForm : Form
 
     private void ApplyLanguage()
     {
+        // Tous les textes permanents sont réappliqués ici. Les messages ponctuels
+        // utilisent T(...) directement au moment où ils sont affichés.
         _subtitle.Text = T(
             "Extrayez certificats et clés privées d’un fichier PFX ou P12, simplement et localement.",
             "Extract certificates and private keys from a PFX or P12 file, simply and locally.");
@@ -554,9 +587,27 @@ public sealed class MainForm : Form
         _hostingButton.Text = T("Copier CRT / KEY / CA", "Copy CRT / KEY / CA");
         _helpButton.Text = T("Aide", "Help");
         _languageLabel.Text = T("Langue", "Language");
+        _versionLink.AccessibleDescription = T(
+            "Ouvrir la page officielle de PFXtract",
+            "Open the official PFXtract product page");
         _status.Text = T("Prêt", "Ready");
         _status.ForeColor = Slate;
         ShowSelectedDetails();
+    }
+
+    private void OpenProductPage()
+    {
+        try
+        {
+            // UseShellExecute demande à Windows d’ouvrir l’URL dans le navigateur par défaut.
+            Process.Start(new ProcessStartInfo(ProductUrl) { UseShellExecute = true });
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.Win32Exception)
+        {
+            ShowWarning(T(
+                "Impossible d’ouvrir la page du produit dans le navigateur.",
+                "Unable to open the product page in your browser."));
+        }
     }
 
     private void BrowseForPfx()
@@ -703,6 +754,7 @@ public sealed class MainForm : Form
 
     private void ExportSelected()
     {
+        // Les certificats cochés sont les seuls transmis au moteur d’export.
         if (_bundle is null) return;
         var selected = _certificateList.Items.Cast<ListViewItem>()
             .Where(item => item.Checked)
@@ -760,6 +812,8 @@ public sealed class MainForm : Form
 
     private void ShowHostingBundle()
     {
+        // Ce mode prépare trois blocs prêts à coller dans les formulaires
+        // d’hébergement courants : CRT, KEY et CABUNDLE.
         var selected = _certificateList.Items.Cast<ListViewItem>()
             .Where(item => item.Checked)
             .Select(item => (X509Certificate2)item.Tag!)
@@ -864,7 +918,7 @@ public sealed class MainForm : Form
     private static string GetAppVersion()
     {
         var version = typeof(MainForm).Assembly.GetName().Version;
-        return version is null ? "1.2.0" : $"{version.Major}.{version.Minor}.{version.Build}";
+        return version is null ? "1.2.1" : $"{version.Major}.{version.Minor}.{version.Build}";
     }
 
     private static bool IsCertificateAuthority(X509Certificate2 certificate)
@@ -951,6 +1005,7 @@ public sealed class MainForm : Form
 
     private sealed class ExportPasswordDialog : Form
     {
+        // Fenêtre dédiée au mot de passe qui protège les exports PKCS#8.
         private readonly bool _english;
         private readonly TextBox _password = new();
         private readonly TextBox _confirmation = new();
@@ -1042,6 +1097,7 @@ public sealed class MainForm : Form
 
     private sealed class HostingBundleForm : Form
     {
+        // Affiche séparément les trois blocs PEM attendus par les hébergeurs.
         private readonly HostingBundle _bundle;
         private readonly bool _english;
 

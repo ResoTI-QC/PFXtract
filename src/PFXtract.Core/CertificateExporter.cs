@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace PFXtract.Core;
 
+/// <summary>Formats publics pouvant être générés pour chaque certificat.</summary>
 [Flags]
 public enum CertificateExportFormat
 {
@@ -12,14 +13,17 @@ public enum CertificateExportFormat
     Pem = 2
 }
 
+/// <summary>Options d’une extraction complète vers un dossier.</summary>
 public sealed record CertificateExportOptions(
     CertificateExportFormat Formats,
     bool ExportPrivateKeys = false,
     string? PrivateKeyPassword = null,
     bool ExportFullChain = false);
 
+/// <summary>Résumé des fichiers réellement créés pendant l’export.</summary>
 public sealed record ExportResult(int CertificateCount, int PrivateKeyCount, IReadOnlyList<string> Files);
 
+/// <summary>Écrit certificats, clés chiffrées et chaîne complète sur le disque.</summary>
 public static partial class CertificateExporter
 {
     public static ExportResult Export(
@@ -33,6 +37,7 @@ public static partial class CertificateExporter
         string outputDirectory,
         CertificateExportOptions options)
     {
+        // Toute validation est effectuée avant la première écriture disque.
         ArgumentNullException.ThrowIfNull(certificates);
         ArgumentNullException.ThrowIfNull(options);
         if (string.IsNullOrWhiteSpace(outputDirectory))
@@ -69,6 +74,7 @@ public static partial class CertificateExporter
 
             if (options.ExportPrivateKeys && certificate.HasPrivateKey)
             {
+                // Les clés enregistrées sur disque sont toujours chiffrées en PKCS#8.
                 var path = NextAvailablePath(outputDirectory, baseName, ".key");
                 var encryptedKey = ExportEncryptedPrivateKey(certificate, options.PrivateKeyPassword!);
                 var pem = PemEncoding.WriteString("ENCRYPTED PRIVATE KEY", encryptedKey);
@@ -95,6 +101,7 @@ public static partial class CertificateExporter
 
     private static byte[] ExportEncryptedPrivateKey(X509Certificate2 certificate, string password)
     {
+        // AES-256 et 100 000 itérations offrent une protection raisonnable aux fichiers KEY.
         var parameters = new PbeParameters(
             PbeEncryptionAlgorithm.Aes256Cbc,
             HashAlgorithmName.SHA256,
@@ -126,6 +133,7 @@ public static partial class CertificateExporter
 
     private static string NextAvailablePath(string directory, string baseName, string extension)
     {
+        // Ne jamais écraser silencieusement un export précédent.
         var path = Path.Combine(directory, baseName + extension);
         var suffix = 2;
         while (File.Exists(path))

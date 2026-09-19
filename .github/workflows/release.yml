@@ -1,0 +1,61 @@
+name: Publication Windows
+
+on:
+  push:
+    tags:
+      - "*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: Compiler et publier PFXtract
+    runs-on: windows-latest
+
+    steps:
+      - name: Récupérer le code source
+        uses: actions/checkout@v4
+
+      - name: Installer .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Compiler la solution
+        run: dotnet build .\PFXtract.sln -c Release
+
+      - name: Exécuter les tests
+        run: dotnet run --project .\tests\PFXtract.Tests\PFXtract.Tests.csproj -c Release --no-build
+
+      - name: Créer l’exécutable autonome
+        shell: pwsh
+        run: |
+          dotnet publish .\src\PFXtract\PFXtract.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:DebugType=None `
+            -o .\publish
+          Copy-Item .\publish\PFXtract.exe .\publish\PFXtract-win-x64.exe
+          $hash = (Get-FileHash .\publish\PFXtract-win-x64.exe -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  PFXtract-win-x64.exe" | Set-Content .\publish\PFXtract-win-x64.sha256 -Encoding ascii
+
+      - name: Publier la version GitHub
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = $env:GITHUB_REF_NAME
+          $notes = ".\docs\release-notes\$version.md"
+          if (-not (Test-Path $notes)) {
+            throw "Les notes de version sont absentes : $notes"
+          }
+
+          gh release create $version `
+            .\publish\PFXtract-win-x64.exe `
+            .\publish\PFXtract-win-x64.sha256 `
+            --verify-tag `
+            --title "PFXtract $version" `
+            --notes-file $notes

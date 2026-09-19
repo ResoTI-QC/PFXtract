@@ -27,6 +27,11 @@ internal static class Program
             Application.DoEvents();
             SaveForm(form, args[2]);
         }
+        if (args.Length > 4)
+        {
+            FindControls<ComboBox>(form).Single().SelectedIndex = 0;
+            RenderHelp(form, args[4]);
+        }
         form.Close();
 
         if (args.Length > 1)
@@ -60,6 +65,22 @@ internal static class Program
         using var bitmap = new Bitmap(form.ClientSize.Width, form.ClientSize.Height);
         form.DrawToBitmap(bitmap, form.ClientRectangle);
         bitmap.Save(outputPath);
+    }
+
+    private static void RenderHelp(MainForm owner, string outputPath)
+    {
+        var showHelp = typeof(MainForm).GetMethod("ShowHelp", BindingFlags.Instance | BindingFlags.NonPublic)
+            ?? throw new InvalidOperationException("Fenêtre d’aide introuvable.");
+        using var timer = new System.Windows.Forms.Timer { Interval = 200 };
+        timer.Tick += (_, _) =>
+        {
+            timer.Stop();
+            var help = Application.OpenForms.Cast<Form>().First(form => form != owner);
+            SaveForm(help, outputPath);
+            help.Close();
+        };
+        timer.Start();
+        showHelp.Invoke(owner, null);
     }
 
     private static IEnumerable<T> FindControls<T>(Control parent) where T : Control

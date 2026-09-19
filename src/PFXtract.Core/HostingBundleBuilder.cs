@@ -3,6 +3,7 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace PFXtract.Core;
 
+/// <summary>Les trois blocs attendus par les formulaires d’installation SSL.</summary>
 public sealed record HostingBundle(
     string CertificateCrt,
     string PrivateKey,
@@ -10,6 +11,7 @@ public sealed record HostingBundle(
     string CertificateName,
     int AuthorityCount);
 
+/// <summary>Prépare CRT, KEY et CABUNDLE à partir des certificats sélectionnés.</summary>
 public static class HostingBundleBuilder
 {
     public static HostingBundle Build(IEnumerable<X509Certificate2> certificates)
@@ -19,6 +21,7 @@ public static class HostingBundleBuilder
         if (all.Length == 0)
             throw new ArgumentException("Aucun certificat n’a été sélectionné.", nameof(certificates));
 
+        // Le certificat final possédant la clé privée est le meilleur candidat pour le CRT.
         var leaf = all.FirstOrDefault(c => c.HasPrivateKey && !IsCertificateAuthority(c))
             ?? all.FirstOrDefault(c => c.HasPrivateKey)
             ?? throw new CryptographicException("Aucune clé privée n’est présente pour les certificats sélectionnés.");
@@ -103,6 +106,8 @@ public static class HostingBundleBuilder
         var ordered = new List<X509Certificate2>();
         var issuer = leaf.IssuerName.RawData;
 
+        // Suivre Issuer -> Subject produit l’ordre intermédiaire vers racine attendu
+        // par la majorité des serveurs et panneaux d’hébergement.
         while (remaining.Count > 0)
         {
             var next = remaining.FirstOrDefault(c => c.SubjectName.RawData.AsSpan().SequenceEqual(issuer));

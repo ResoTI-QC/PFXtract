@@ -9,7 +9,7 @@
     <ApplicationIcon>Assets\certificate-download-icon.ico</ApplicationIcon>
     <AssemblyName>PFXtract</AssemblyName>
     <Product>PFXtract</Product>
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\PFXtract.Core\PFXtract.Core.csproj" />
